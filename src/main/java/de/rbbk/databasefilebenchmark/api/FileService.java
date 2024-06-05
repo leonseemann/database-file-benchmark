@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,22 +23,26 @@ public class FileService {
     private final ImageRepository imageRepository;
     private final AppConfig appConfig;
 
-    public List<Image> test() {
-        return imageRepository.findAll().stream().toList();
-    }
-
     public boolean saveFileToFilesystem(MultipartFile[] files) {
         try {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) {
-                    continue; //next pls
+                    continue;
                 }
 
-                byte[] bytes = file.getBytes();
-                Path pathToFile = Path.of(appConfig.getFilePath().toString(), file.getOriginalFilename());
-                log.debug("Writing file {} to {}", file.getOriginalFilename(), pathToFile);
-                File savedFile = Files.write(pathToFile, bytes).toFile();
-                this.saveFilePath(savedFile);
+                Path filePath = Path.of(appConfig.getFilePath().toString(), file.getOriginalFilename());
+
+                if (!Files.exists(filePath)) {
+                    Files.createDirectories(filePath.getParent());
+                }
+
+                log.debug("Writing file {} to {}", file.getOriginalFilename(), filePath);
+                file.transferTo(filePath);
+
+                Image image = new Image();
+                image.setPath(filePath.toString());
+                image.setFileName(file.getOriginalFilename());
+                imageRepository.save(image);
             }
 
             return true;
@@ -49,13 +52,6 @@ public class FileService {
         }
 
         return false;
-    }
-
-    private void saveFilePath(File file) {
-        Image image = new Image();
-        image.setPath(file.getAbsolutePath());
-        image.setFileName(file.getName());
-        imageRepository.save(image);
     }
 
     public void saveAllFilesToDatabase(List<Image> fileEntities) {
