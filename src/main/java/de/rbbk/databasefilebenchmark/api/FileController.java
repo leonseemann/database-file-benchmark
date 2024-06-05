@@ -1,6 +1,7 @@
 package de.rbbk.databasefilebenchmark.api;
 
 import de.rbbk.databasefilebenchmark.Entites.Image;
+import de.rbbk.databasefilebenchmark.annotation.measureTime.MeasureTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class FileController {
         return new ResponseEntity<>(images, HttpStatus.OK);
     }
 
+    @MeasureTime
     @PostMapping("database/upload")
     public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
         List<Image> fileEntities = files.stream()
@@ -49,7 +51,7 @@ public class FileController {
                 .toList();
         this.fileService.saveAllFilesToDatabase(fileEntities);
     }
-
+    @MeasureTime
     @PostMapping("filesystem/upload")
     public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile[] files) {
         if (files.length == 0) {
