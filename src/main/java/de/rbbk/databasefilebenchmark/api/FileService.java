@@ -51,6 +51,7 @@ public class FileService {
     private void saveFilePath(File file) {
         Image image = new Image();
         image.setPath(file.getAbsolutePath());
+        image.setFileName(file.getName());
         imageRepository.save(image);
     }
 

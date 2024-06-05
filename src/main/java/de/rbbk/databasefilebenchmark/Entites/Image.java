@@ -25,4 +25,6 @@ public class Image {
 
     @Nullable
     private String path;
+
+    private String fileName;
 }

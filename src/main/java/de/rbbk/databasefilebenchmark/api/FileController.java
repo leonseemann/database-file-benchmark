@@ -41,6 +41,7 @@ public class FileController {
                     Image newImage = new Image();
                     try {
                         newImage.setData(file.getBytes());
+                        newImage.setFileName(file.getOriginalFilename());
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }
