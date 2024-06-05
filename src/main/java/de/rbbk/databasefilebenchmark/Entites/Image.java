@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
+import java.util.UUID;
 
 @Entity
 @Table(name="Images")
@@ -15,7 +16,7 @@ import java.io.File;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
     private String base64;
     private File path;
 }
