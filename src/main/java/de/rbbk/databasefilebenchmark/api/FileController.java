@@ -21,20 +21,6 @@ import java.util.List;
 public class FileController {
     private final FileService fileService;
 
-    @GetMapping("helloWorld")
-    public String helloWorld() {
-        return "Hello World!";
-    }
-
-    @GetMapping("test")
-    public ResponseEntity<List<Image>> test() {
-        List<Image> images = fileService.test();
-        if (images.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(images, HttpStatus.OK);
-    }
-
     @MeasureTime
     @PostMapping("database/upload")
     public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
