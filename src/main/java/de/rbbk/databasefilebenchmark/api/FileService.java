@@ -45,4 +45,8 @@ public class FileService {
 
         return false;
     }
+
+    public void saveAllFilesToDatabase(List<Image> fileEntities) {
+        imageRepository.saveAllAndFlush(fileEntities);
+    }
 }

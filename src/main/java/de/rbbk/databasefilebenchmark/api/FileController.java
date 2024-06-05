@@ -1,10 +1,8 @@
 package de.rbbk.databasefilebenchmark.api;
 
 import de.rbbk.databasefilebenchmark.Entites.Image;
-import de.rbbk.databasefilebenchmark.Repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +19,6 @@ import java.util.List;
 @Slf4j
 public class FileController {
     private final FileService fileService;
-    @Autowired
-    private ImageRepository imageRepository;
 
     @GetMapping("helloWorld")
     public String helloWorld() {
@@ -46,12 +42,12 @@ public class FileController {
                     try {
                         newImage.setData(file.getBytes());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage());
                     }
                     return newImage;
                 })
                 .toList();
-        this.imageRepository.saveAll(fileEntities);
+        this.fileService.saveAllFilesToDatabase(fileEntities);
     }
 
     @PostMapping("filesystem/upload")
