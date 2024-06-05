@@ -1,5 +1,6 @@
 package de.rbbk.databasefilebenchmark.api;
 
+import de.rbbk.databasefilebenchmark.AppConfig;
 import de.rbbk.databasefilebenchmark.Entites.Image;
 import de.rbbk.databasefilebenchmark.annotation.measureTime.MeasureTime;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +30,9 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class FileController {
     private final FileService fileService;
+    private final AppConfig appConfig;
 
-    @MeasureTime
+    @MeasureTime(fileName = "src/main/resources/database-time")
     @PostMapping("database/upload")
     public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
         List<Image> fileEntities = files.stream()
@@ -47,7 +49,7 @@ public class FileController {
                 .toList();
         this.fileService.saveAllFilesToDatabase(fileEntities);
     }
-    @MeasureTime
+    @MeasureTime(fileName = "src/main/resources/filesystem-time")
     @PostMapping("filesystem/upload")
     public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile[] files) {
         if (files.length == 0) {
@@ -63,6 +65,7 @@ public class FileController {
     }
 
     @GetMapping("download")
+    @MeasureTime(fileName = "src/main/resources/download-time")
     public void downloadAllFiles(HttpServletResponse response) {
         // Query the files you want to download from the database.
         // Note: Replace "findAll()" with your custom method if needed.

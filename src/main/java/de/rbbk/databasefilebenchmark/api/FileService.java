@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -95,5 +96,13 @@ public class FileService {
         }
 
         return image;
+    }
+
+    public void writeNewLineToFile(String fileName, String text) throws IOException {
+        File file = new File(fileName);
+        file.createNewFile();
+        FileWriter fileWriter = new FileWriter(fileName, true);
+        fileWriter.write(text + "\n");
+        fileWriter.close();
     }
 }
