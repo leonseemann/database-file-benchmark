@@ -13,4 +13,5 @@ import java.nio.file.Path;
 @ConfigurationProperties(prefix = "app")
 public class AppConfig {
     private Path filePath;
+    private Path executionTimeFilePath;
 }
