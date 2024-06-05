@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +35,8 @@ public class FileService {
                 byte[] bytes = file.getBytes();
                 Path pathToFile = Path.of(appConfig.getFilePath().toString(), file.getOriginalFilename());
                 log.debug("Writing file {} to {}", file.getOriginalFilename(), pathToFile);
-                Files.write(pathToFile, bytes);
+                File savedFile = Files.write(pathToFile, bytes).toFile();
+                this.saveFilePath(savedFile);
             }
 
             return true;
@@ -44,6 +46,13 @@ public class FileService {
         }
 
         return false;
+    }
+
+    private void saveFilePath(File file) {
+        Image image = new Image();
+        image.setPath(file.getAbsolutePath());
+        image.setFileName(file.getName());
+        imageRepository.save(image);
     }
 
     public void saveAllFilesToDatabase(List<Image> fileEntities) {

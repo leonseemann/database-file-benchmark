@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Entity
 @Table(name="Images")
 @AllArgsConstructor
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     @Lob
     @Column(length = Integer.MAX_VALUE)
@@ -23,4 +25,6 @@ public class Image {
 
     @Nullable
     private String path;
+
+    private String fileName;
 }
