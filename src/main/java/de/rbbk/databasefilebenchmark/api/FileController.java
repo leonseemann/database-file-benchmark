@@ -55,7 +55,7 @@ public class FileController {
         this.imageRepository.saveAll(fileEntities);
     }
 
-    @PostMapping("/filesystem/upload")
+    @PostMapping("filesystem/upload")
     public ResponseEntity<String> uploadFilesystem(@RequestParam("file") MultipartFile[] files) {
         if (files.length == 0) {
             return new ResponseEntity<>("Sie muesssen mindestens eine Datei hochladen", HttpStatus.NO_CONTENT);
