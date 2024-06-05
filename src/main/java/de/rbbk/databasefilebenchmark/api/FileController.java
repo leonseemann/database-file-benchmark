@@ -1,7 +1,6 @@
 package de.rbbk.databasefilebenchmark.api;
 
 import de.rbbk.databasefilebenchmark.Entites.Image;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,20 +23,7 @@ import java.util.zip.ZipOutputStream;
 public class FileController {
     private final FileService fileService;
 
-    @GetMapping("helloWorld")
-    public String helloWorld() {
-        return "Hello World!";
-    }
-
-    @GetMapping("test")
-    public ResponseEntity<List<Image>> test() {
-        List<Image> images = fileService.test();
-        if (images.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(images, HttpStatus.OK);
-    }
-
+    @MeasureTime
     @PostMapping("database/upload")
     public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
         List<Image> fileEntities = files.stream()
@@ -54,7 +40,7 @@ public class FileController {
                 .toList();
         this.fileService.saveAllFilesToDatabase(fileEntities);
     }
-
+    @MeasureTime
     @PostMapping("filesystem/upload")
     public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile[] files) {
         if (files.length == 0) {
