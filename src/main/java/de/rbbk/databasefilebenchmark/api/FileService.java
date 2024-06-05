@@ -37,7 +37,7 @@ public class FileService {
 
                 byte[] bytes = file.getBytes();
                 Path pathToFile = Path.of(appConfig.getFilePath().toString(), file.getOriginalFilename());
-                log.debug("Writing file {} to {}", file.getOriginalFilename(), pathToFile);
+                    Files.createDirectories(Path.of(appConfig.getFilePath().toString()));
                 File savedFile = Files.write(pathToFile, bytes).toFile();
                 this.saveFilePath(savedFile);
             }
