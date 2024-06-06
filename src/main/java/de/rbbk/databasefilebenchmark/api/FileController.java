@@ -42,7 +42,7 @@ public class FileController {
         }
         this.fileService.saveAllFilesToDatabase(newImage);
         long endTime = System.nanoTime() - startTime;
-        timeLogger.logTimeInFile(endTime, file.getOriginalFilename());
+        timeLogger.logTimeInFile(endTime, "database", file.getOriginalFilename());
     }
 
     @PostMapping("filesystem/upload")
@@ -60,7 +60,7 @@ public class FileController {
         }
 
         long endTime = System.nanoTime() - startTime;
-        timeLogger.logTimeInFile(endTime, file.getOriginalFilename());
+        timeLogger.logTimeInFile(endTime, "filesystem", file.getOriginalFilename());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -96,7 +96,7 @@ public class FileController {
             throw new RuntimeException("Error while downloading files: " + e.getMessage());
         }
         long endTime = System.nanoTime() - startTime;
-        timeLogger.logTimeInFile(endTime, "download" + LocalDateTime.now());
+        timeLogger.logTimeInFile(endTime, "download", "%s-download".formatted(LocalDateTime.now()));
     }
 
     @GetMapping("/download/{id}")

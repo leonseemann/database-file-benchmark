@@ -16,10 +16,10 @@ public class TimeLogger {
     private final FileService fileService;
 
     @SneakyThrows
-    public void logTimeInFile(long executionTime, String fileName) {
+    public void logTimeInFile(long executionTime,String uploadType, String fileName) {
         log.info("Time needed to upload files: {}nsec", executionTime);
 
-        Path path = Path.of("src/main/resources", "logs", fileName + ".txt");
+        Path path = Path.of("src/main/resources", "logs", uploadType, fileName + ".txt");
 
         Files.createDirectories(path.getParent());
 
