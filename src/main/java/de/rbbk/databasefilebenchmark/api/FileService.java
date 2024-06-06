@@ -26,14 +26,11 @@ public class FileService {
     private final ImageRepository imageRepository;
     private final AppConfig appConfig;
 
-    public boolean saveFileToFilesystem(MultipartFile[] files) {
+    public boolean saveFileToFilesystem(MultipartFile file) {
         try {
-            for (MultipartFile file : files) {
-                if (file.isEmpty()) {
-                    continue;
-                }
-
                 Path filePath = Path.of(appConfig.getFilePath().toString(), file.getOriginalFilename());
+
+                Files.createDirectories(appConfig.getFilePath());
 
                 if (!Files.exists(filePath)) {
                     Files.createDirectories(filePath.getParent());
@@ -46,7 +43,6 @@ public class FileService {
                 image.setPath(filePath.toString());
                 image.setFileName(file.getOriginalFilename());
                 imageRepository.save(image);
-            }
 
             return true;
 
@@ -57,8 +53,8 @@ public class FileService {
         return false;
     }
 
-    public void saveAllFilesToDatabase(List<Image> fileEntities) {
-        imageRepository.saveAllAndFlush(fileEntities);
+    public void saveAllFilesToDatabase(Image fileEntities) {
+        imageRepository.saveAndFlush(fileEntities);
     }
 
     public List<Image> getAllFiles() {

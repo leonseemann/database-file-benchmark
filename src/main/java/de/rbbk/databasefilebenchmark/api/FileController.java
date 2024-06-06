@@ -1,7 +1,7 @@
 package de.rbbk.databasefilebenchmark.api;
 
 import de.rbbk.databasefilebenchmark.Entites.Image;
-import de.rbbk.databasefilebenchmark.annotation.measureTime.MeasureTime;
+import de.rbbk.databasefilebenchmark.TimeLogger;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,45 +26,50 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class FileController {
     private final FileService fileService;
+    private final TimeLogger timeLogger;
 
-    @MeasureTime(fileName = "src/main/resources/database-time")
     @PostMapping("database/upload")
     @Operation(summary = "Upload file into database", description = "It uploads files into the database as a binary.")
-    public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
-        List<Image> fileEntities = files.stream()
-                .map(file -> {
-                    Image newImage = new Image();
-                    try {
-                        newImage.setData(file.getBytes());
-                        newImage.setFileName(file.getOriginalFilename());
-                    } catch (IOException e) {
-                        log.error(e.getMessage());
-                    }
-                    return newImage;
-                })
-                .toList();
-        this.fileService.saveAllFilesToDatabase(fileEntities);
+    public void fileToDatabase(@RequestParam("files") MultipartFile file) {
+        long startTime = System.nanoTime();
+
+        Image newImage = new Image();
+        try {
+            newImage.setData(file.getBytes());
+            newImage.setFileName(file.getOriginalFilename());
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+        this.fileService.saveAllFilesToDatabase(newImage);
+        long endTime = System.nanoTime() - startTime;
+        timeLogger.logTimeInFile(endTime, file.getOriginalFilename());
     }
-    @MeasureTime(fileName = "src/main/resources/filesystem-time")
+
     @PostMapping("filesystem/upload")
     @Operation(summary = "Upload file into filesystem", description = "It uploads files into the filesystem and saving only the path in the database. Can handle larger files")
-    public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile[] files) {
-        if (files.length == 0) {
+    public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile file) {
+        long startTime = System.nanoTime();
+
+        if (file == null) {
             return new ResponseEntity<>("Sie muesssen mindestens eine Datei hochladen", HttpStatus.NO_CONTENT);
         }
 
-        boolean success = fileService.saveFileToFilesystem(files);
+        boolean success = fileService.saveFileToFilesystem(file);
         if (!success) {
             return new ResponseEntity<>("Fehler beim Speichern der Dateien", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        long endTime = System.nanoTime() - startTime;
+        timeLogger.logTimeInFile(endTime, file.getOriginalFilename());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("download")
-    @MeasureTime(fileName = "src/main/resources/download-time")
     @Operation(summary = "Downloads all files", description = "Downloads all file that are existing in the Database as a .zip")
     public void downloadAllFiles(HttpServletResponse response) {
+        long startTime = System.nanoTime();
+
         // Query the files you want to download from the database.
         // Note: Replace "findAll()" with your custom method if needed.
         List<Image> images = fileService.getAllFiles();
@@ -89,6 +95,8 @@ public class FileController {
         } catch (IOException e) {
             throw new RuntimeException("Error while downloading files: " + e.getMessage());
         }
+        long endTime = System.nanoTime() - startTime;
+        timeLogger.logTimeInFile(endTime, "download" + LocalDateTime.now());
     }
 
     @GetMapping("/download/{id}")
