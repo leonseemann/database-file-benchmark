@@ -33,3 +33,4 @@ build/
 .vscode/
 /src/main/resources/example-files/**
 /src/main/resources/uploaded-files/
+/src/main/resources/logs/
