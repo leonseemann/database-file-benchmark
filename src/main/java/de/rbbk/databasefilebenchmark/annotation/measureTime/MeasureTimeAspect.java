@@ -23,10 +23,10 @@ public class MeasureTimeAspect {
 
     @Around("measureTimeAnnotation()")
     public Object measureMethodExecutionTime(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         Object result = proceedingJoinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - start;
-        log.info("Time needed to upload files: " + executionTime + "ms");
+        long executionTime = System.nanoTime() - start;
+        log.info("Time needed to upload files: " + executionTime + "nsec");
 
         Method method = ((MethodSignature) proceedingJoinPoint.getSignature()).getMethod();
         MeasureTime measureTimeAnnotation = method.getAnnotation(MeasureTime.class);
