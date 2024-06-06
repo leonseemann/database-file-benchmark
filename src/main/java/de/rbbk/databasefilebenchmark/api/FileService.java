@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -56,13 +57,6 @@ public class FileService {
         return false;
     }
 
-    private void saveFilePath(File file) {
-        Image image = new Image();
-        image.setPath(file.getAbsolutePath());
-        image.setFileName(file.getName());
-        imageRepository.save(image);
-    }
-
     public void saveAllFilesToDatabase(List<Image> fileEntities) {
         imageRepository.saveAllAndFlush(fileEntities);
     }
@@ -104,5 +98,16 @@ public class FileService {
         FileWriter fileWriter = new FileWriter(fileName, true);
         fileWriter.write(text + "\n");
         fileWriter.close();
+    }
+
+    @SneakyThrows
+    public void deleteAll() {
+        imageRepository.deleteAll();
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(appConfig.getFilePath())) {
+            for (Path path : directoryStream) {
+                Files.delete(path);
+            }
+        }
     }
 }

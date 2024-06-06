@@ -1,19 +1,14 @@
 package de.rbbk.databasefilebenchmark.api;
 
-import de.rbbk.databasefilebenchmark.AppConfig;
 import de.rbbk.databasefilebenchmark.Entites.Image;
 import de.rbbk.databasefilebenchmark.annotation.measureTime.MeasureTime;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,10 +25,10 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class FileController {
     private final FileService fileService;
-    private final AppConfig appConfig;
 
     @MeasureTime(fileName = "src/main/resources/database-time")
     @PostMapping("database/upload")
+    @Operation(summary = "Upload file into database", description = "It uploads files into the database as a binary.")
     public void fileToDatabase(@RequestParam("files") List<MultipartFile> files) {
         List<Image> fileEntities = files.stream()
                 .map(file -> {
@@ -51,6 +46,7 @@ public class FileController {
     }
     @MeasureTime(fileName = "src/main/resources/filesystem-time")
     @PostMapping("filesystem/upload")
+    @Operation(summary = "Upload file into filesystem", description = "It uploads files into the filesystem and saving only the path in the database. Can handle larger files")
     public ResponseEntity<String> uploadFilesystem(@RequestParam("files") MultipartFile[] files) {
         if (files.length == 0) {
             return new ResponseEntity<>("Sie muesssen mindestens eine Datei hochladen", HttpStatus.NO_CONTENT);
@@ -66,6 +62,7 @@ public class FileController {
 
     @GetMapping("download")
     @MeasureTime(fileName = "src/main/resources/download-time")
+    @Operation(summary = "Downloads all files", description = "Downloads all file that are existing in the Database as a .zip")
     public void downloadAllFiles(HttpServletResponse response) {
         // Query the files you want to download from the database.
         // Note: Replace "findAll()" with your custom method if needed.
@@ -96,6 +93,7 @@ public class FileController {
 
     @GetMapping("/download/{id}")
     @ResponseBody
+    @Operation(summary = "Downloads one file", description = "Downloads one file by id")
     public void getFile(@PathVariable("id") UUID id, HttpServletResponse response) {
         Optional<Image> imageOpt = fileService.findByIdOnlyData(id);
 
@@ -114,5 +112,11 @@ public class FileController {
         } else {
             log.warn("File with id {} not found", id);
         }
+    }
+
+    @DeleteMapping
+    @Operation(summary = "Deletes everything", description = "Deletes all files on filesystem and in the database")
+    public void deleteAll() {
+        fileService.deleteAll();
     }
 }
